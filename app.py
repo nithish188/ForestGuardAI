@@ -211,7 +211,6 @@ if img:
 
     for cls, count in class_counts.items():
         st.write(f"**{cls.capitalize()} × {count}**")
-
 if intrusion:
     st.session_state.alert_active = True
     # only count if this is a NEW image
