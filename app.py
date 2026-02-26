@@ -40,19 +40,47 @@ st.title("🌳 ForestGuard AI – Intelligent Forest Threat Monitoring")
 # =====================================================
 if st.session_state.alert_active:
     st.markdown("""
-        <div style="
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: red;
-            color: white;
-            padding: 20px;
-            font-size: 20px;
-            border-radius: 10px;
-            z-index: 9999;">
-            🚨 CRITICAL FOREST THREAT DETECTED
+    <style>
+    .alert-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.85);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: white;
+        text-align: center;
+    }
+
+    .alert-box {
+        background-color: red;
+        padding: 40px;
+        border-radius: 20px;
+        font-size: 32px;
+        font-weight: bold;
+        box-shadow: 0px 0px 40px red;
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        50% { transform: scale(1.05); }
+    }
+    </style>
+
+    <div class="alert-overlay">
+        <div class="alert-box">
+            🚨 CRITICAL FOREST THREAT DETECTED 🚨
+            <br><br>
+            Immediate Action Required
         </div>
+    </div>
     """, unsafe_allow_html=True)
+    
 
 
 # =====================================================
