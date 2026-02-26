@@ -199,7 +199,7 @@ if img:
 
     if intrusion:
         st.session_state.intrusion_detected = True
-        #st.session_state.person_count += detected_classes.count("person")
+        st.session_state.person_count += detected_classes.count("person")
         st.metric("Intruders detected", st.session_state.person_count)
         st.error("🚨 Human / Vehicle detected – Possible poaching activity")
 
