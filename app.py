@@ -49,51 +49,38 @@ if "alert_active" not in st.session_state:
 # =====================================================
 st.title("🌳 ForestGuard AI – Intelligent Forest Threat Monitoring")
 
-
 # =====================================================
 # FULL SCREEN ALERT OVERLAY
 # =====================================================
 if st.session_state.alert_active:
-    st.markdown("""
+
+    alert_html = """
+    <div id="forest-alert">
+        🚨 CRITICAL FOREST THREAT 🚨<br>
+        Immediate Ranger Deployment Required
+    </div>
+
     <style>
-    .alert-overlay {
+    #forest-alert {
         position: fixed;
         top: 0;
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(0,0,0,0.9);
-        z-index: 999999;
+        background: rgba(0,0,0,0.95);
+        color: white;
+        font-size: 48px;
+        font-weight: bold;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-direction: column;
-    }
-
-    .alert-box {
-        background: red;
-        padding: 60px;
-        border-radius: 25px;
-        font-size: 42px;
-        font-weight: bold;
-        color: white;
         text-align: center;
-        box-shadow: 0 0 80px red;
-        animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-        50% { transform: scale(1.08); }
+        z-index: 1000000;
     }
     </style>
+    """
 
-    <div class="alert-overlay">
-        <div class="alert-box">
-        🚨 CRITICAL FOREST THREAT 🚨<br><br>
-        Immediate Ranger Deployment Required
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.components.v1.html(alert_html, height=0, width=0)
 
 
 # =====================================================
