@@ -4,7 +4,7 @@ import tempfile
 import os
 import hashlib
 from datetime import date
-from collections import Counter
+from collections import Countera
 from PIL import Image
 
 from utils.change_detection import detect_deforestation
