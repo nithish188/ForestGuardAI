@@ -19,6 +19,36 @@ st.set_page_config(page_title="ForestGuard AI", layout="wide")
 
 st.title("🌳 ForestGuard AI – Intelligent Forest Threat Monitoring")
 
+if st.session_state.alert_active:
+    st.markdown(
+        """
+        <style>
+        @keyframes blink {
+            50% {opacity: 0;}
+        }
+        .alert-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: red;
+            color: white;
+            padding: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 12px;
+            animation: blink 1s infinite;
+            z-index: 9999;
+        }
+        </style>
+        <div class="alert-box">
+        🚨 CRITICAL FOREST THREAT DETECTED
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg")
+
 st.success("🟢 System Status: Monitoring Active | Satellite Sync Enabled")
 
 st.markdown("""
@@ -124,6 +154,13 @@ if st.button("Analyze Forest Change (Satellite)"):
         risk_score += 30
 
     st.metric("🚨 Forest Threat Level", f"{risk_score:.2f}%")
+    
+    ALERT_THRESHOLD = 50
+
+    if risk_score >= ALERT_THRESHOLD:
+        st.session_state.alert_active = True
+    else:
+        st.session_state.alert_active = False
 
     if risk_score > 50:
         st.error("🔴 HIGH RISK: Immediate patrol deployment recommended")
@@ -158,6 +195,8 @@ if img:
     if intrusion:
         st.session_state.intrusion_detected = True
         st.error("🚨 Human / Vehicle detected – Possible poaching activity")
+    if "alert_active" not in st.session_state:
+        st.session_state.alert_active = False
     else:
         st.session_state.intrusion_detected = False
         st.success("🟢 Wildlife detected – No intrusion")
