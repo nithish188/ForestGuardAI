@@ -13,11 +13,11 @@ from utils.satellite_fetch import get_satellite_image
 
 
 # ---------------- SESSION STATE ----------------
-if "intrusion_detected" not in st.session_state:
-    st.session_state.intrusion_detected = False
-
 if "intrusion" not in st.session_state:
     st.session_state.intrusion = False
+
+if "intrusion_detected" not in st.session_state:
+    st.session_state.intrusion_detected = False
 
 if "person_count" not in st.session_state:
     st.session_state.person_count = 0
@@ -155,7 +155,7 @@ if img:
         st.write(f"**{cls.capitalize()} × {count}**")
 
     # -------- INTRUSION LOGIC --------
-    if intrusion:
+    if st.session_state.intrusion:
 
         if st.session_state.last_intrusion_image != image_hash:
             st.session_state.person_count += class_counts.get("person", 0)
