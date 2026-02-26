@@ -213,7 +213,6 @@ if img:
         st.write(f"**{cls.capitalize()} × {count}**")
 
 if intrusion:
-
     st.session_state.alert_active = True
     # only count if this is a NEW image
     if st.session_state.last_intrusion_image != image_hash:
