@@ -195,7 +195,7 @@ if img:
 
     st.image(result, use_column_width=True)
 
-    st.write("Detected:", detected_classes)
+    # st.write("Detected:", detected_classes)
 
     if intrusion:
         st.session_state.intrusion_detected = True
