@@ -13,6 +13,22 @@ from utils.satellite_fetch import get_satellite_image
 
 
 # =====================================================
+# PAGE CONFIG
+# =====================================================
+st.set_page_config(page_title="ForestGuard AI", layout="wide")
+
+# Remove default padding so overlay becomes truly full screen
+st.markdown("""
+<style>
+.block-container {
+    padding-top: 0rem;
+    padding-bottom: 0rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# =====================================================
 # SESSION STATE (CLOUD SAFE)
 # =====================================================
 if "intrusion" not in st.session_state:
@@ -29,21 +45,13 @@ if "alert_active" not in st.session_state:
 
 
 # =====================================================
-# PAGE CONFIG
+# TITLE
 # =====================================================
-st.set_page_config(page_title="ForestGuard AI", layout="wide")
-st.markdown("""
-<style>
-.block-container {
-    padding-top: 1rem;
-}
-</style>
-""", unsafe_allow_html=True)
 st.title("🌳 ForestGuard AI – Intelligent Forest Threat Monitoring")
 
 
 # =====================================================
-# GLOBAL ALERT POPUP
+# FULL SCREEN ALERT OVERLAY
 # =====================================================
 if st.session_state.alert_active:
     st.markdown("""
@@ -54,40 +62,38 @@ if st.session_state.alert_active:
         left: 0;
         width: 100vw;
         height: 100vh;
-        background-color: rgba(0, 0, 0, 0.85);
-        z-index: 99999;
+        background: rgba(0,0,0,0.9);
+        z-index: 999999;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        color: white;
-        text-align: center;
     }
 
     .alert-box {
-        background-color: red;
-        padding: 40px;
-        border-radius: 20px;
-        font-size: 32px;
+        background: red;
+        padding: 60px;
+        border-radius: 25px;
+        font-size: 42px;
         font-weight: bold;
-        box-shadow: 0px 0px 40px red;
+        color: white;
+        text-align: center;
+        box-shadow: 0 0 80px red;
         animation: pulse 1s infinite;
     }
 
     @keyframes pulse {
-        50% { transform: scale(1.05); }
+        50% { transform: scale(1.08); }
     }
     </style>
 
     <div class="alert-overlay">
         <div class="alert-box">
-            🚨 CRITICAL FOREST THREAT DETECTED 🚨
-            <br><br>
-            Immediate Action Required
+        🚨 CRITICAL FOREST THREAT 🚨<br><br>
+        Immediate Ranger Deployment Required
         </div>
     </div>
     """, unsafe_allow_html=True)
-    
 
 
 # =====================================================
@@ -189,18 +195,14 @@ if img:
 
     st.image(result, use_column_width=True)
 
-    # store globally
     st.session_state.intrusion = intrusion
 
-    # -------- CLASS SUMMARY --------
     class_counts = Counter(detected_classes)
 
     st.write("### Detection Summary")
-
     for cls, count in class_counts.items():
         st.write(f"**{cls.capitalize()} × {count}**")
 
-    # -------- INTRUSION LOGIC --------
     if intrusion:
 
         if st.session_state.last_intrusion_image != image_hash:
@@ -217,7 +219,9 @@ if img:
 
 
 # =====================================================
-# RESET BUTTON
+# ACKNOWLEDGE ALERT BUTTON
 # =====================================================
-if st.button("🔄 Reset Alerts"):
-    st.session_state.alert_active = False
+if st.session_state.alert_active:
+    if st.button("✅ Acknowledge Alert"):
+        st.session_state.alert_active = False
+        st.rerun()
