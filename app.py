@@ -15,6 +15,9 @@ if "intrusion_detected" not in st.session_state:
 
 if "alert_active" not in st.session_state:
     st.session_state.alert_active = False
+    
+if "person_count" not in st.session_state:
+    st.session_state.person_count = 0
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="ForestGuard AI", layout="wide")
@@ -196,9 +199,10 @@ if img:
 
     if intrusion:
         st.session_state.intrusion_detected = True
+        st.session_state.person_count += detected_classes.count("person")
+        st.metric("Intruders detected", st.session_state.person_count)
         st.error("🚨 Human / Vehicle detected – Possible poaching activity")
-    if "alert_active" not in st.session_state:
-        st.session_state.alert_active = False
+
     else:
         st.session_state.intrusion_detected = False
         st.success("🟢 Wildlife detected – No intrusion")
