@@ -1,8 +1,10 @@
 import streamlit as st
 import tempfile
 import os
+
 from utils.change_detection import detect_deforestation
 from utils.yolo_detect import detect_intrusion
+from utils.satellite_fetch import get_satellite_image
 
 # ---------------- SESSION STATE ----------------
 if "intrusion_detected" not in st.session_state:
@@ -11,37 +13,49 @@ if "intrusion_detected" not in st.session_state:
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="ForestGuard AI", layout="wide")
 
-st.title("🌳 ForestGuard AI")
+st.title("🌳 ForestGuard AI – Intelligent Forest Threat Monitoring")
 
 st.markdown("""
-### 🛰 AI-Powered Forest & Wildlife Monitoring System  
-Using Satellite Imagery & Real-Time Camera Trap Detection  
-**Region: Tamil Nadu, India**
+AI-powered system for **real-time forest monitoring** using  
+🛰 Sentinel-2 satellite imagery + 🎥 AI intrusion detection  
+📍 Tamil Nadu Forest Department Use Case
 """)
 
-# ---------------- LOCATION SELECTOR ----------------
-location = st.selectbox(
-    "📍 Select Forest Region",
-    [
-        "Sathyamangalam Tiger Reserve",
-        "Mudumalai Tiger Reserve",
-        "Anamalai Tiger Reserve",
-        "Kalakkad Mundanthurai Tiger Reserve (KMTR)"
-    ]
-)
+# ---------------- FOREST LOCATIONS ----------------
+forest_coords = {
+    "Sathyamangalam Tiger Reserve": [77.0, 11.4, 77.5, 11.9],
+    "Mudumalai Tiger Reserve": [76.3, 11.5, 76.7, 11.7],
+    "Anamalai Tiger Reserve": [76.8, 10.2, 77.2, 10.5],
+    "KMTR": [77.1, 8.4, 77.5, 8.8]
+}
 
-st.info(f"Monitoring Region: {location}")
+location = st.selectbox("📍 Select Forest Region", list(forest_coords.keys()))
+
+# ---------------- TOP DASHBOARD ----------------
+col1, col2, col3 = st.columns(3)
+col1.metric("Monitored Region", location)
+col2.metric("Satellite Source", "Sentinel-2")
+col3.metric("Last Scan", "Just now")
+
+st.map({location: forest_coords[location][:2]})
+
+# ---------------- SATELLITE FETCH ----------------
+if st.button("🛰 Fetch Latest Satellite Image"):
+
+    with st.spinner("Fetching Sentinel-2 image..."):
+        sat_img = get_satellite_image(forest_coords[location])
+
+    st.image(sat_img, caption="Latest Sentinel-2 Image", use_column_width=True)
 
 # ---------------- TABS ----------------
 tab1, tab2 = st.tabs(["🌲 Deforestation Monitoring", "🚨 Intrusion Detection"])
 
-
-# =========================================================
-# 🌲 TAB 1 — DEFORESTATION
-# =========================================================
+# =====================================================
+# 🌲 DEFORESTATION TAB
+# =====================================================
 with tab1:
 
-    st.subheader("Upload Satellite Images")
+    st.subheader("Upload BEFORE & AFTER images")
 
     col1, col2 = st.columns(2)
 
@@ -58,14 +72,12 @@ with tab1:
         t2.write(after.getbuffer())
         t2.close()
 
-        with st.spinner("Analyzing forest change..."):
-            result, percent = detect_deforestation(t1.name, t2.name)
+        result, percent = detect_deforestation(t1.name, t2.name)
 
-        st.image(result, caption="Detected Forest Change", use_column_width=True)
+        st.image(result, caption="Forest Change Detection", use_column_width=True)
 
         st.metric("🌲 Forest Loss", f"{percent:.2f} %")
 
-        # ---------------- THREAT SCORE CALCULATION ----------------
         risk_score = percent
 
         if st.session_state.intrusion_detected:
@@ -73,26 +85,24 @@ with tab1:
 
         st.metric("🚨 Forest Threat Level", f"{risk_score:.2f} %")
 
-        # ---------------- ALERT SYSTEM ----------------
         if risk_score > 50:
-            st.error("🔴 HIGH RISK: Immediate action required!")
+            st.error("🔴 HIGH RISK: Deploy anti-poaching patrol immediately")
         elif risk_score > 20:
-            st.warning("🟠 MODERATE RISK: Patrol recommended")
+            st.warning("🟠 MODERATE RISK: Increase drone surveillance")
         else:
-            st.success("🟢 LOW RISK")
+            st.success("🟢 LOW RISK: Routine monitoring")
 
         os.remove(t1.name)
         os.remove(t2.name)
 
-
-# =========================================================
-# 🚨 TAB 2 — INTRUSION DETECTION
-# =========================================================
+# =====================================================
+# 🚨 INTRUSION TAB
+# =====================================================
 with tab2:
 
-    st.subheader("Upload Forest Camera Image")
+    st.subheader("Upload Forest Camera Trap Image")
 
-    img = st.file_uploader("Upload Image", type=["png", "jpg", "jpeg"])
+    img = st.file_uploader("Upload image", type=["png", "jpg", "jpeg"])
 
     if img:
 
@@ -100,19 +110,23 @@ with tab2:
         t.write(img.getbuffer())
         t.close()
 
-        with st.spinner("Running AI intrusion detection..."):
-            result = detect_intrusion(t.name)
+        result = detect_intrusion(t.name)
 
-        st.image(result, caption="Detection Result", use_column_width=True)
+        st.image(result, caption="Intrusion Detection", use_column_width=True)
 
-        # 🔥 SET INTRUSION FLAG
         st.session_state.intrusion_detected = True
 
-        st.error("🚨 Human/Vehicle detected → Possible Poaching Activity!")
+        st.error("🚨 Human / Vehicle detected – Possible poaching activity")
 
         os.remove(t.name)
 
-
-# ---------------- FOOTER ----------------
+# ---------------- IMPACT PANEL ----------------
 st.markdown("---")
-st.markdown("Built for Hackathon Demo | Data: Sentinel-2 | Model: YOLOv8")
+st.markdown("### 🌱 Impact")
+
+st.write("""
+- Early detection of illegal logging  
+- Real-time anti-poaching alerts  
+- Scalable across all Indian tiger reserves  
+- Decision support for Tamil Nadu Forest Department  
+""")
