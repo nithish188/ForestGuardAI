@@ -13,6 +13,7 @@ from utils.satellite_fetch import get_satellite_image
 
 # ---------------- SESSION STATE INIT ----------------
 if "intrusion_detected" not in st.session_state:
+    intrusion = False
     st.session_state.intrusion_detected = False
 
 if "alert_active" not in st.session_state:
