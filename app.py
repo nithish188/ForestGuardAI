@@ -149,13 +149,18 @@ if img:
     tmp.write(img.getbuffer())
     tmp.close()
 
-    result = detect_intrusion(tmp.name)
+    result, intrusion, detected_classes = detect_intrusion(tmp.name)
 
-    st.image(result, caption="Intrusion Detection Result", use_column_width=True)
+    st.image(result, use_column_width=True)
 
-    st.session_state.intrusion_detected = True
+    st.write("Detected:", detected_classes)
 
-    st.error("🚨 Human / Vehicle detected – Possible Poaching Activity")
+    if intrusion:
+        st.session_state.intrusion_detected = True
+        st.error("🚨 Human / Vehicle detected – Possible poaching activity")
+    else:
+        st.session_state.intrusion_detected = False
+        st.success("🟢 Wildlife detected – No intrusion")
 
     os.remove(tmp.name)
 
