@@ -32,6 +32,13 @@ if "alert_active" not in st.session_state:
 # PAGE CONFIG
 # =====================================================
 st.set_page_config(page_title="ForestGuard AI", layout="wide")
+st.markdown("""
+<style>
+.block-container {
+    padding-top: 1rem;
+}
+</style>
+""", unsafe_allow_html=True)
 st.title("🌳 ForestGuard AI – Intelligent Forest Threat Monitoring")
 
 
