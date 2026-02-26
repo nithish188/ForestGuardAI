@@ -3,6 +3,7 @@ import tempfile
 import os
 import pandas as pd
 import hashlib
+from collections import Counter
 from datetime import date
 from PIL import Image
 from utils.change_detection import detect_deforestation
@@ -19,7 +20,7 @@ if "alert_active" not in st.session_state:
     
 if "person_count" not in st.session_state:
     st.session_state.person_count = 0
-
+    
 if "last_intrusion_image" not in st.session_state:
     st.session_state.last_intrusion_image = None
 
@@ -202,7 +203,13 @@ if img:
     result, intrusion, detected_classes = detect_intrusion(tmp.name)
 
     st.image(result, use_column_width=True)
-    st.write("Detected:", detected_classes)
+    
+    class_counts = Counter(detected_classes)
+
+    st.write("### Detection Summary")
+
+    for cls, count in class_counts.items():
+        st.write(f"**{cls.capitalize()} × {count}**")
 
 if intrusion:
 
