@@ -167,7 +167,7 @@ if st.button("Analyze Forest Change (Satellite)"):
     
     ALERT_THRESHOLD = 50
 
-    if 80 >= ALERT_THRESHOLD:
+    if risk_score >= ALERT_THRESHOLD:
         st.session_state.alert_active = True
     else:
         st.session_state.alert_active = False
@@ -213,6 +213,7 @@ if img:
 
 if intrusion:
 
+    st.session_state.alert_active = True
     # only count if this is a NEW image
     if st.session_state.last_intrusion_image != image_hash:
         st.session_state.person_count += detected_classes.count("person")
