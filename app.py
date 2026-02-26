@@ -4,7 +4,7 @@ import tempfile
 import os
 import hashlib
 from datetime import date
-from collections import Countera
+from collections import Counter
 from PIL import Image
 
 from utils.change_detection import detect_deforestation
@@ -12,12 +12,11 @@ from utils.yolo_detect import detect_intrusion
 from utils.satellite_fetch import get_satellite_image
 
 
-# ---------------- SESSION STATE ----------------
+# =====================================================
+# SESSION STATE (CLOUD SAFE)
+# =====================================================
 if "intrusion" not in st.session_state:
     st.session_state.intrusion = False
-
-if "intrusion_detected" not in st.session_state:
-    st.session_state.intrusion_detected = False
 
 if "person_count" not in st.session_state:
     st.session_state.person_count = 0
@@ -29,14 +28,17 @@ if "alert_active" not in st.session_state:
     st.session_state.alert_active = False
 
 
-# ---------------- PAGE CONFIG ----------------
+# =====================================================
+# PAGE CONFIG
+# =====================================================
 st.set_page_config(page_title="ForestGuard AI", layout="wide")
-
 st.title("🌳 ForestGuard AI – Intelligent Forest Threat Monitoring")
 
 
-# ---------------- GLOBAL ALERT POPUP ----------------
-if st.session_state.get("alert_active", False):
+# =====================================================
+# GLOBAL ALERT POPUP
+# =====================================================
+if st.session_state.alert_active:
     st.markdown("""
         <div style="
             position: fixed;
@@ -53,7 +55,9 @@ if st.session_state.get("alert_active", False):
     """, unsafe_allow_html=True)
 
 
-# ---------------- FOREST LOCATIONS ----------------
+# =====================================================
+# FOREST LOCATIONS
+# =====================================================
 forest_coords = {
     "Sathyamangalam Tiger Reserve": [77.0, 11.4, 77.5, 11.9],
     "Mudumalai Tiger Reserve": [76.3, 11.5, 76.7, 11.7],
@@ -64,20 +68,26 @@ forest_coords = {
 location = st.selectbox("📍 Select Forest Region", list(forest_coords.keys()))
 
 
-# ---------------- DATE RANGE ----------------
+# =====================================================
+# DATE RANGE
+# =====================================================
 col1, col2 = st.columns(2)
 start_date = col1.date_input("Start Date", date(2024, 1, 1))
 end_date = col2.date_input("End Date", date.today())
 
 
-# ---------------- DASHBOARD METRICS ----------------
+# =====================================================
+# DASHBOARD METRICS
+# =====================================================
 colA, colB, colC = st.columns(3)
 colA.metric("Region", location)
 colB.metric("Intrusions", st.session_state.person_count)
 colC.metric("Monitoring Window", f"{(end_date - start_date).days} days")
 
 
-# ---------------- MAP ----------------
+# =====================================================
+# MAP
+# =====================================================
 map_data = pd.DataFrame({
     "lat": [forest_coords[location][1]],
     "lon": [forest_coords[location][0]]
@@ -86,7 +96,7 @@ st.map(map_data, zoom=8)
 
 
 # =====================================================
-# 🛰 SATELLITE DEFORESTATION
+# SATELLITE DEFORESTATION
 # =====================================================
 st.subheader("🛰 Satellite Forest Change Detection")
 
@@ -125,7 +135,7 @@ if st.button("Analyze Forest Change"):
 
 
 # =====================================================
-# 🚨 INTRUSION DETECTION
+# CAMERA TRAP – INTRUSION DETECTION
 # =====================================================
 st.subheader("🚨 Camera Trap Monitoring")
 
@@ -144,6 +154,7 @@ if img:
 
     st.image(result, use_column_width=True)
 
+    # store globally
     st.session_state.intrusion = intrusion
 
     # -------- CLASS SUMMARY --------
@@ -155,7 +166,7 @@ if img:
         st.write(f"**{cls.capitalize()} × {count}**")
 
     # -------- INTRUSION LOGIC --------
-    if st.session_state.intrusion:
+    if intrusion:
 
         if st.session_state.last_intrusion_image != image_hash:
             st.session_state.person_count += class_counts.get("person", 0)
@@ -170,6 +181,8 @@ if img:
     os.remove(tmp.name)
 
 
-# ---------------- RESET BUTTON ----------------
+# =====================================================
+# RESET BUTTON
+# =====================================================
 if st.button("🔄 Reset Alerts"):
     st.session_state.alert_active = False
