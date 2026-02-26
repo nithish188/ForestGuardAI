@@ -2,6 +2,7 @@ import streamlit as st
 import tempfile
 import os
 import pandas as pd
+import hashlib
 from datetime import date
 from PIL import Image
 from utils.change_detection import detect_deforestation
@@ -18,6 +19,9 @@ if "alert_active" not in st.session_state:
     
 if "person_count" not in st.session_state:
     st.session_state.person_count = 0
+
+if "last_intrusion_image" not in st.session_state:
+    st.session_state.last_intrusion_image = None
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(page_title="ForestGuard AI", layout="wide")
@@ -191,21 +195,26 @@ if img:
     tmp.write(img.getbuffer())
     tmp.close()
 
+    # create unique ID for the uploaded image
+    image_bytes = img.getvalue()
+    image_hash = hashlib.md5(image_bytes).hexdigest()
+
     result, intrusion, detected_classes = detect_intrusion(tmp.name)
 
     st.image(result, use_column_width=True)
+    st.write("Detected:", detected_classes)
 
-    # st.write("Detected:", detected_classes)
+if intrusion:
 
-    if intrusion:
-        st.session_state.intrusion_detected = True
+    # only count if this is a NEW image
+    if st.session_state.last_intrusion_image != image_hash:
         st.session_state.person_count += detected_classes.count("person")
-        st.metric("Intruders detected", st.session_state.person_count)
-        st.error("🚨 Human / Vehicle detected – Possible poaching activity")
+        st.session_state.last_intrusion_image = image_hash
 
-    else:
-        st.session_state.intrusion_detected = False
-        st.success("🟢 Wildlife detected – No intrusion")
+    st.error("🚨 Human / Vehicle detected – Possible poaching activity")
+
+else:
+    st.success("🟢 Wildlife detected – No intrusion")
 
     os.remove(tmp.name)
 
