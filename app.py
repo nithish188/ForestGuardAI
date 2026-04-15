@@ -130,6 +130,8 @@ if st.button("Analyze Forest Change"):
 
     tmp1 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
     tmp2 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+    tmp1.close()
+    tmp2.close()
 
     Image.fromarray(before).save(tmp1.name)
     Image.fromarray(after).save(tmp2.name)
